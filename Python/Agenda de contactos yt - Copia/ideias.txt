@@ -1,0 +1,2 @@
+-Adicionar na interface gráfica uma checkbox que permita mostrar a palavra passe e esconder a palavra passe
+-Botão-limpar tudo
