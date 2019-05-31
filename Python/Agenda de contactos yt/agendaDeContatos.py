@@ -15,6 +15,21 @@ def lerPalavraPasse(ficheiro):
     return file.read()
 
 
+
+
+def contactoExiste(contacto):
+    listaContactosExiste = list(filter((lambda x:x.nome == contacto.nome and x.numero == contacto.numero),listaContactos))
+    return len(listaContactosExiste) > 0
+
+
+def isPhoneNumber(numero):
+        numeroConvertido = 0
+        try:
+            numeroConvertido = int(numero)
+        except:
+            pass
+        return len(numero) == 9 and numeroConvertido != 0
+        
 def criarContacto(file,listaContactos):
 
     numero = ""
@@ -22,29 +37,20 @@ def criarContacto(file,listaContactos):
     while numero == "" and nome == "":
         nome = input("Digite o nome do contacto")
         numero = input("Digite o numero")
-        numeroConvertido = 0
-        try:
-            numeroConvertido = int(numero)
-        except:
-            pass
+        
 
-        if len(numero) != 9 or numeroConvertido == 0 or numero == "" or nome == "":
+        if not isPhoneNumber(numero) or numero == "" or nome == "":
             print("Erro a criar contacto")
             numero = ""
             nome = ""
             continue
             
             
-            
-        existe = False
         contacto = Contacto(nome,numero)
-        for i in listaContactos:
-            if i.nome == contacto.nome and i.numero == contacto.numero:
-                existe = True
-                break
-
         
-        if not existe:
+        
+        
+        if not contactoExiste(contacto):
             
             file.write(contacto.formatacao()+"\n")
             listaContactos.append(contacto)
@@ -54,6 +60,10 @@ def criarContacto(file,listaContactos):
             numero = ""
     
 
+
+
+
+    
 def criarPalavraPasse():
     file = open("password.txt","w")
     palavraPasse = ""
@@ -124,6 +134,20 @@ def mostrarContactos():
     for i in range(len(listaContactos)):
         print(str(i)+"-"+listaContactos[i].formatacao())
 
+
+
+
+
+    
+
+
+
+def atualizarAgenda():
+    ficheiro = open("Contactos.txt","w")
+    for i in listaContactos:
+        ficheiro.write(i.formatacao()+"\n")
+    ficheiro.close()
+    
 def eliminarContacto():
     mostrarContactos()
 
@@ -136,10 +160,11 @@ def eliminarContacto():
             identificadores.sort(reverse = True)
             for i in identificadores:
                 del listaContactos[i]
-            ficheiro = open("Contactos.txt","w")
-            for i in listaContactos:
-                ficheiro.write(i.formatacao())
-            ficheiro.close()
+
+            atualizarAgenda()
+
+            
+            
             break
         except(ValueError):
             print("Erro a digitar identificador")
@@ -148,12 +173,41 @@ def eliminarContacto():
 
         
         
+def editarContacto(identificador,nome,numero):
+
+
+
+
+    if isPhoneNumber(numero) and nome != "" and numero != "":
         
+        contactoTeste = Contacto(nome,numero)
+    
+        if not contactoExiste(contactoTeste):
+            listaContactos[identificador].nome = nome
+            listaContactos[identificador].numero = numero
+            atualizarAgenda()
+        else:
+            print("Os dados já existem")
+    else:
+        print("Erro a editar contacto")
+    
+    
+    
 while teclado != "3":
-    teclado = input("1-Ver Contactos 2- Criar contacto 3-sair 4-Eliminar Contacto")
+    teclado = input("1-Ver Contactos 2- Criar contacto 3-sair 4-Eliminar Contacto (editar,id,nome,numero)")
+    tecladoSplit = teclado.split(",")
+    tecladoSplit[0] = tecladoSplit[0].lower()
     if teclado == "1":
         mostrarContactos()
-        
+
+    elif "EDITAR".lower() in tecladoSplit:
+        try:
+            identificador = int(tecladoSplit[1])
+            nome = tecladoSplit[2]
+            numero = tecladoSplit[3]
+            editarContacto(identificador,nome,numero)
+        except:
+            print("Erro a editar contacto")
     elif teclado == "2":
         
         #Criar o contacto
